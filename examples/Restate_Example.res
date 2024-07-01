@@ -83,16 +83,17 @@ module Exemple2  = {
          )
        }
 
-    let scheduler = (state, deferredAction) =>
-     switch deferredAction {
-     | LogIncrement =>
-       Js.log2("increment side effect: ", state)
-       // Note: the state on the cleanup will the content of this scope, and
-       //       not the previous one that exist at moment of running the function.
-       Some(() => Js.log2("increment cleanup: ", state))
-     | LogDecrementOnlyAtCleanup =>
-       Some(() => Js.log2("decrement cleanup: ", state))
-     }
+    let scheduler: (RestateReducer.self<state, action>, deferredAction) => option<unit=>unit> = 
+      (self, deferredAction) =>
+        switch deferredAction {
+        | LogIncrement =>
+          Js.log2("increment side effect: ", self.state)
+          // Note: the state on the cleanup will the content of this scope, and
+          //       not the previous one that exist at moment of running the function.
+          Some(() => Js.log2("increment cleanup: ", self.state))
+        | LogDecrementOnlyAtCleanup =>
+          Some(() => Js.log2("decrement cleanup: ", self.state))
+        }
 
     @react.component
     let make = () => {

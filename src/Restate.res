@@ -30,7 +30,7 @@ module MakeReducer = (DeferredAction: HasDeferredAction) => {
   // vs Restate Reducer "reduce" function:
   type reducer<'state, 'action> = ('state, 'action) => update<'state>
   // ^ Main difference is that our reduce function is wrapped in an custom "update" type.
-  type scheduler<'state> = ('state, DeferredAction.t) => option<unit => unit>
+  type scheduler<'state, 'action> = (self<'state, 'action>, DeferredAction.t) => option<unit => unit>
   // ^ Scheduler is like an impure reducer that group the async/side effects actions related code.
   //   But instead of dispatch actions inmmediatly, in their case, we differ them into a queue.
 
@@ -54,7 +54,7 @@ module MakeReducer = (DeferredAction: HasDeferredAction) => {
   // RestateReduser.useReducer(reducer, scheduler, initialState)
   let useReducer = (
     reducer: reducer<'state, 'action>, // The reducer provided by the user
-    scheduler: scheduler<'state>, // The scheduler provided by the user
+    scheduler: scheduler<'state, 'action>, // The scheduler provided by the user
     initialState: 'state
   ) => {
     // NOTE: We must follow the rules of React about effects cleanup!
@@ -90,7 +90,9 @@ module MakeReducer = (DeferredAction: HasDeferredAction) => {
           }
         }
       , {userState: initialState, deferredActionsQueue: list{}}
-    ) 
+    )
+    let defer: schedule = deferredAction => internalDispatch(PushDeferred(deferredAction))
+    let send: dispatch<'action> = action => internalDispatch(WiredAction(action)) 
     // Obs: Actually this useEffect and the other one compose the "scheduler"
     React.useEffect1(() => {
       // CAUTION: Maybe we should run all of them in a single effect (?)
@@ -103,7 +105,7 @@ module MakeReducer = (DeferredAction: HasDeferredAction) => {
           ->Belt.Option.map(mPrevCleanupFn => mPrevCleanupFn->Belt.Option.map(prevCleanupFn => prevCleanupFn()))
           ->ignore
         // 2. Run the deferred action  
-        let mNewCleanupFn = scheduler(userState, deferredAction) // CAUTION: Is reducerState the latest state?
+        let mNewCleanupFn = scheduler({state: userState, send, defer}, deferredAction) // CAUTION: Is reducerState the latest state?
         // 3. Update the cleanup function
         cleanupFnsRef.current = cleanupFnsRef.current->Belt.Map.String.set(DeferredAction.variantId(deferredAction), mNewCleanupFn)
         // 4. Pop the action from the queue
@@ -126,8 +128,6 @@ module MakeReducer = (DeferredAction: HasDeferredAction) => {
       )
       }
     )
-    let defer: schedule = deferredAction => internalDispatch(PushDeferred(deferredAction))
-    let send: dispatch<'action> = action => internalDispatch(WiredAction(action))
     // Notice that this is the API the user will receive.
     // This way, we hide implementation (unsafe) tricks.
     (userState, send, defer)
