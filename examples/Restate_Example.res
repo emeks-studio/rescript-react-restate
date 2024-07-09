@@ -46,7 +46,7 @@ let make = () => {
 
 }
 
-module Exemple2  = {
+module Example2  = {
   module C = {
     type state = int
 
