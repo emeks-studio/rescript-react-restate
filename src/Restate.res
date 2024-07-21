@@ -123,7 +123,7 @@ module MakeReducer = (DeferredAction: HasDeferredAction) => {
           mCleanupFn => mCleanupFn->Belt.Option.forEach(cleanupFn => cleanupFn())
         )
         // Not needed, given after unmount the ref is destroyed by React
-        //cleanupFnsRef.current = Belt.Map.String.empty
+        // cleanupFnsRef.current = Belt.Map.String.empty
         }
       )
       }
@@ -133,3 +133,11 @@ module MakeReducer = (DeferredAction: HasDeferredAction) => {
     (userState, send, defer)
   }
 }
+
+// TODO: Implement this for Restate
+// ReactUpdate.useReducerWithMapState (reducer<'state, 'action>, () => 'state) => ('state, dispatch<'action>)
+// React.useReducerWithMapState(
+//   ('state, 'action) => 'state,
+//   'initialState,
+//   'initialState => 'state,
+// ) => ('state, 'action => unit)
