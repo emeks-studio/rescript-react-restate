@@ -1,24 +1,22 @@
 {
-  "name": "rescript-react-update",
-  "version": "5.0.2",
+  "name": "rescript-react-restate",
+  "version": "1.0.0",
   "scripts": {
-    "build": "bsb -make-world",
-    "start": "bsb -make-world -w",
-    "clean": "bsb -clean-world",
-    "test": "bsb -make-world",
-    "dev": "bsb -make-world && parcel examples/index.html"
+    "dev": "yarn re:build && parcel examples/index.html",
+    "re:build": "rescript",
+    "re:watch": "rescript build -w"
   },
-  "bugs": "https://github.com/bloodyowl/rescript-react-update/issues",
+  "bugs": "https://github.com/emeks-studio/rescript-react-restate/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bloodyowl/rescript-react-update.git"
+    "url": "https://github.com/emeks-studio/rescript-react-restate.git"
   },
   "keywords": [
-    "reason-react",
+    "rescript-react",
     "rescript",
     "react"
   ],
-  "author": "bloodyowl <bloodyowl@icloud.com>",
+  "author": "mk <mirko@emeks.com.ar>",
   "license": "MIT",
   "peerDependencies": {
     "@rescript/react": "^0.10.1 || ^0.11.0",
@@ -27,7 +25,7 @@
   },
   "devDependencies": {
     "@rescript/react": "^0.10.1",
-    "bs-platform": "^8.3.0",
+    "rescript-react-update": "^5.0.0",
     "parcel-bundler": "^1.12.5",
     "react": "^16.8.0",
     "react-dom": "^16.8.0"
