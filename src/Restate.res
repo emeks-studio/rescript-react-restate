@@ -132,12 +132,67 @@ module MakeReducer = (DeferredAction: HasDeferredAction) => {
     // This way, we hide implementation (unsafe) tricks.
     (userState, send, defer)
   }
-}
 
-// TODO: Implement this for Restate
-// ReactUpdate.useReducerWithMapState (reducer<'state, 'action>, () => 'state) => ('state, dispatch<'action>)
-// React.useReducerWithMapState(
-//   ('state, 'action) => 'state,
-//   'initialState,
-//   'initialState => 'state,
-// ) => ('state, 'action => unit)
+  let useReducerWithMapState = (
+    reducer: reducer<'state, 'action>, // The reducer provided by the user
+    scheduler: scheduler<'state, 'action>, // The scheduler provided by the user
+    createInitialState: () => 'state, // A function to map the initial state
+  ) => {
+    let cleanupFnsRef: React.ref<Belt.Map.String.t<option<unit => unit>>> = React.useRef(Belt.Map.String.empty)  
+    let ({userState, deferredActionsQueue}, internalDispatch) = React.useReducerWithMapState(
+      ({userState, deferredActionsQueue} as internalState, internalAction) =>
+        switch internalAction {
+        | WiredAction(action) => 
+          switch reducer(userState, action) {
+          | NoUpdate => internalState
+          | Update(state) => {...internalState, userState: state}
+          | UpdateWithDeferred(state, deferredAction) => {
+              userState: state,
+              deferredActionsQueue: Belt.List.concat(deferredActionsQueue, list{deferredAction}),
+            }
+          | Deferred(deferredAction) => {
+              ...internalState,
+              deferredActionsQueue: Belt.List.concat(deferredActionsQueue, list{deferredAction}),
+            }
+          }
+        | PushDeferred(deferredAction) => {
+            ...internalState,
+            deferredActionsQueue: Belt.List.concat(deferredActionsQueue, list{deferredAction}),
+          }
+        | PopDeferred(tailDeferredActions) => {
+            ...internalState,
+            deferredActionsQueue: tailDeferredActions,
+          }
+        }
+      , (), initialState =>  {userState: createInitialState(initialState), deferredActionsQueue: list{}}
+    )
+    let defer: schedule = deferredAction => internalDispatch(PushDeferred(deferredAction))
+    let send: dispatch<'action> = action => internalDispatch(WiredAction(action)) 
+    React.useEffect1(() => {
+      switch (deferredActionsQueue) {
+      | list{deferredAction, ...queueTail} => 
+        cleanupFnsRef.current
+          ->Belt.Map.String.get(DeferredAction.variantId(deferredAction))
+          ->Belt.Option.map(mPrevCleanupFn => mPrevCleanupFn->Belt.Option.map(prevCleanupFn => prevCleanupFn()))
+          ->ignore
+        let mNewCleanupFn = scheduler({state: userState, send, defer}, deferredAction)
+        cleanupFnsRef.current = cleanupFnsRef.current->Belt.Map.String.set(DeferredAction.variantId(deferredAction), mNewCleanupFn)
+        internalDispatch(PopDeferred(queueTail)) 
+      | list{} => ()
+      }
+      None
+    }, [deferredActionsQueue])
+    React.useEffect0(() => {
+      Some(() => {
+        cleanupFnsRef.current
+        ->Belt.Map.String.valuesToArray
+        ->Belt.Array.forEach(
+          mCleanupFn => mCleanupFn->Belt.Option.forEach(cleanupFn => cleanupFn())
+        )
+        }
+      )
+      }
+    )
+    (userState, send, defer)
+  }
+}
