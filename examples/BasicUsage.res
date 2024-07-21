@@ -78,3 +78,23 @@ module ReactRestate = {
     </div>
   }
 }
+
+module ReactRaw = {
+  @react.component
+  let make = () => {
+    let (elapsed, setElapsed) = React.useState(_ => 0)
+    React.useEffect1(() => {
+      let timeoutId = Js.Global.setTimeout(() => setElapsed(e => e + 1), 1_000)
+      Js.Console.log2("schedule next tick: ", timeoutId)
+      Some(() => {
+        Js.Console.log2("cleanup: ", timeoutId)
+        Js.Global.clearTimeout(timeoutId)
+      })
+    }, [elapsed])
+    let reset = () => setElapsed(_ => 0)
+    <div>
+      {elapsed->Js.String.make->React.string}
+      <button onClick={_ => reset()}> {"Reset"->React.string} </button>
+    </div>
+  }
+}

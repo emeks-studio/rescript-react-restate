@@ -4,6 +4,7 @@ module App = {
   let make = () => {
     let url = RescriptReactRouter.useUrl()
     switch url.path {
+      | list{"react-raw", "basic"} => <BasicUsage.ReactRaw />
       | list{"react-update", "basic"} => <BasicUsage.ReactUpdate />
       | list{"react-update", "counter"} => <Counter.ReactUpdate />
       | list{"react-update", "counter-effects"} => <Counter_SideEffects.ReactUpdate />
@@ -14,6 +15,9 @@ module App = {
         <div>
           <div> 
             <h3> {"Basic Usage"->React.string} </h3>
+            <button onClick={_ => RescriptReactRouter.push("/react-raw/basic")}>
+              {"React Raw"->React.string}
+            </button>
             <button onClick={_ => RescriptReactRouter.push("/react-update/basic")}>
               {"React Update"->React.string}
             </button>
