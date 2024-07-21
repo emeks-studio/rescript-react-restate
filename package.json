@@ -1,10 +1,11 @@
 {
-  "name": "rescript-react-restate",
+  "name": "@emeks/rescript-react-restate",
   "version": "1.0.0",
   "scripts": {
     "dev": "yarn re:build && parcel examples/index.html",
     "re:build": "rescript",
-    "re:watch": "rescript build -w"
+    "re:watch": "rescript build -w",
+    "prepublish": "rescript build"
   },
   "bugs": "https://github.com/emeks-studio/rescript-react-restate/issues",
   "repository": {
