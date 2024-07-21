@@ -77,7 +77,7 @@ module ReactRestate = {
         switch deferredAction {
         | LogIncrement =>
           Js.log2("increment side effect: ", self.state)
-          // Note: the state on the cleanup will the content of this scope, and
+          // Note: The state on the cleanup will the content of this scope, and
           //       not the previous one that exist at moment of running the function.
           Some(() => Js.log2("increment cleanup: ", self.state))
         | LogDecrement =>

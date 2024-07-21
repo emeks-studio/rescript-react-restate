@@ -1,5 +1,5 @@
 {
-  "name": "rescript-react-update",
+  "name": "rescript-react-restate",
   "version": "1.0.0",
   "scripts": {
     "dev": "yarn re:build && parcel examples/index.html",
