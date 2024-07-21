@@ -44,7 +44,7 @@ type deferredAction =
   | LogIncrement
   | LogDecrement
 
-// Because of implementation details related on how we clean up the side effects, we need to provide a way to identify each the deferred action. In other words, deferred actions must have a unique identifier.
+// Because of implementation details related on how we clean up the side effects, we need to provide a way to identify each deferred action. In other words, deferred actions, must have a unique identifier.
 module DeferredAction: Restate.HasDeferredAction with type t = deferredAction = {
   type t = deferredAction
   let variantId = action =>
