@@ -1,5 +1,5 @@
 {
-  "name": "rescript-react-update",
+  "name": "rescript-react-restate",
   "reason": {
     "react-jsx": 3
   },
@@ -24,6 +24,6 @@
     "number": "-30"
   },
   "suffix": ".bs.js",
-  "bs-dependencies": ["@rescript/react"],
+  "bs-dependencies": ["@rescript/react", "rescript-react-update"],
   "refmt": 3
 }
