@@ -1,3 +1,6 @@
+// Polyfill for Map taken from RescriptCore
+// Ref. https://github.com/rescript-association/rescript-core/blob/main/src/Core__Map.res
+
 type t<'k, 'v> = Js.Map.t<'k, 'v>
 
 @new external make: unit => t<'k, 'v> = "Map"

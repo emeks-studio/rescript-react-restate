@@ -1,4 +1,8 @@
-## 1.0.0
+## 2.0.0
+
+* Simplify API around deferred actions.
+
+## 1.0.1
 
 * Fork from `rescript-react-update`. 
 * Re-design and extend the API.
