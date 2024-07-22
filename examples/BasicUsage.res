@@ -37,24 +37,16 @@ module ReactRestate = {
   type action = Tick | Reset
   type state = {elapsed: int}
   type deferredAction = ScheduleNextTick
-  module DeferredAction: Restate.HasDeferredAction with type t = deferredAction = {
-      type t = deferredAction
-      let variantId = action =>
-        switch action {
-        | ScheduleNextTick => "ScheduleNextTick"
-      }
-    }
-  module RestateReducer = Restate.MakeReducer(DeferredAction)
   let reducer = (state, action) =>
     switch action {
     | Tick =>
-      RestateReducer.UpdateWithDeferred(
+      Restate.UpdateWithDeferred(
         {elapsed: state.elapsed + 1},
         ScheduleNextTick
       )
-    | Reset => RestateReducer.Update({elapsed: 0})
+    | Reset => Restate.Update({elapsed: 0})
     }
-  let scheduler: (RestateReducer.self<state, action>, deferredAction) => option<unit=>unit> = 
+  let scheduler: (Restate.self<state, action, 'deferredAction>, deferredAction) => option<unit=>unit> = 
     (self, action) =>
         switch action {
         | ScheduleNextTick =>
@@ -67,7 +59,7 @@ module ReactRestate = {
         }
   @react.component
   let make = () => {
-    let (state, send, _defer) = RestateReducer.useReducerWithMapState(reducer, scheduler, () => {elapsed: 0})
+    let (state, send, _defer) = Restate.useReducerWithMapState(reducer, scheduler, () => {elapsed: 0})
     React.useEffect0(() => {
       send(Tick)
       None

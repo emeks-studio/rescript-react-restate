@@ -50,29 +50,21 @@ module ReactRestate = {
     type deferredAction =
       | LogIncrement
       | LogDecrement
-    module DeferredAction: Restate.HasDeferredAction with type t = deferredAction = {
-      type t = deferredAction
-      let variantId = action =>
-        switch action {
-        | LogIncrement => "LogIncrement"
-        | LogDecrement => "LogDecrement"
-      }
-    }
-    module RestateReducer = Restate.MakeReducer(DeferredAction)
+
     let reducer = (state, action) => 
      switch action {
        | Increment =>
-         RestateReducer.UpdateWithDeferred(
+         Restate.UpdateWithDeferred(
            state + 1,
            LogIncrement,
          )
        | Decrement =>
-         RestateReducer.UpdateWithDeferred(
+         Restate.UpdateWithDeferred(
            state - 1,
            LogDecrement,
          )
        }
-    let scheduler: (RestateReducer.self<state, action>, deferredAction) => option<unit=>unit> = 
+    let scheduler: (Restate.self<state, action, deferredAction>, deferredAction) => option<unit=>unit> = 
       (self, deferredAction) =>
         switch deferredAction {
         | LogIncrement =>
@@ -86,7 +78,7 @@ module ReactRestate = {
         }
     @react.component
     let make = () => {
-      let (state, send, _defer) = RestateReducer.useReducer(reducer, scheduler, 0)
+      let (state, send, _defer) = Restate.useReducer(reducer, scheduler, 0)
       <div>
         {state->React.int}
         <button onClick={_ => send(Decrement)}> {"-"->React.string} </button>
