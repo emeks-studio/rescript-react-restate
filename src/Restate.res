@@ -38,11 +38,6 @@ type internalState<'action, 'state, 'deferredAction> = {
   deferredActionsQueue: Belt.List.t<'deferredAction>,
 }
 
-// /** Usage: **/
-// 1. Init module;
-// module RestateReducer = Restate.MakeReducer(DeferredActions)
-// 2. Use the Hook;
-// RestateReduser.useReducer(reducer, scheduler, initialState)
 let useReducer = (
   reducer: reducer<'state, 'action, 'deferredAction>, // The reducer provided by the user
   scheduler: scheduler<'state, 'action, 'deferredAction>, // The scheduler provided by the user
@@ -132,10 +127,8 @@ let useReducer = (
 let useReducerWithMapState = (
   reducer: reducer<'state, 'action, 'deferredAction>, // The reducer provided by the user
   scheduler: scheduler<'state, 'action, 'deferredAction>, // The scheduler provided by the user
-  createInitialState: unit => 'state,
+  createInitialState: unit => 'state, // A function to map the initial state
 ) => {
-  // A function to map the initial state
-
   let cleanupFnsRef: React.ref<
     Internal_Map.t<'deferredAction, option<unit => unit>>,
   > = React.useRef(Internal_Map.make())
